@@ -1,5 +1,5 @@
 <template>
-    <!--<div>
+    <div>
         <div class="row" v-for="item in list" v-bind:key="item.Title">
             <div class="column">
                 <b-card :title="item.Title"
@@ -17,8 +17,7 @@
                 </b-card>
             </div>
         </div>
-    </div>-->
-    <div></div>
+    </div>
 </template>
 
 <script>
@@ -32,16 +31,15 @@
         name: 'SearchView',
         data() {
             return {
-                list: undefined
+                list: []
             }
         },
         mounted() {
             axios
                 .get('https://localhost:44345/api/News?criteria=War')
                 .then((result) => {
-                    console.warn(result),
-                        this.list = result.data,
-                    console.warn(this.list)
+                    console.warn(result)
+                    this.list = result.data
                 })
         }
     }
