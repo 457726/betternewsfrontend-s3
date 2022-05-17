@@ -13,7 +13,7 @@
                         {{item.Description}}
                     </b-card-text>
 
-                    <b-button :href="item.Url" variant="primary">Lees meer</b-button>
+                    <b-button variant="primary">Lees meer</b-button>
                 </b-card>
             </div>
         </div>
