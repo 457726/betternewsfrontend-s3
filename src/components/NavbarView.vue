@@ -24,15 +24,12 @@
                     <b-dropdown-item href="#">RU</b-dropdown-item>
                     <b-dropdown-item href="#">FA</b-dropdown-item>
                 </b-nav-item-dropdown>
-
-                <b-nav-item-dropdown right>
-                    <!-- Using 'button-content' slot -->
-                    <template #button-content>
-                        <em>User</em>
-                    </template>
-                    <b-dropdown-item href="#">Profile</b-dropdown-item>
-                    <b-dropdown-item href="#">Sign Out</b-dropdown-item>
-                </b-nav-item-dropdown>
+                    <div v-if="!$auth.loading">
+                        <!-- show login when not authenticated -->
+                        <a v-if="!$auth.isAuthenticated" @click="login" class="button is-dark"><strong>Sign in</strong></a>
+                        <!-- show logout when authenticated -->
+                        <a v-if="$auth.isAuthenticated" @click="$auth.logout()" class="button is-dark"><strong>Log out</strong></a>
+                    </div>
             </b-navbar-nav>
         </b-collapse>
     </b-navbar>
@@ -70,6 +67,15 @@
                         console.warn(result.data)
                     })
                 e.preventDefault();
+            },
+            login() {
+                this.$auth.loginWithRedirect();
+            },
+            // Log the user out
+            logout() {
+                this.$auth.logout({
+                    returnTo: window.location.origin
+                });
             }
         }
     }

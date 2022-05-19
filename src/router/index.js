@@ -7,11 +7,11 @@ import SearchView from '@/views/SearchView.vue'
 Vue.use(VueRouter)
 
 const routes = [
-  {
-    path: '/',
-    name: 'home',
-    component: HomeView
-  },
+    {
+      path: '/',
+      name: 'home',
+      component: HomeView
+    },
     {
         path: '/callback',
         name: 'callback',
