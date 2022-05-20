@@ -18,7 +18,7 @@ const routes = [
         component: Callback
     },
     {
-        path: '/search',
+        path: '/search/:criteria',
         name: 'search',
         component: SearchView
     },
@@ -26,7 +26,17 @@ const routes = [
         path: '/corona',
         name: 'corona',
         component: () => import('../views/CoronaView.vue')
-    }
+    },
+    {
+        path: '/sport',
+        name: 'sport',
+        component: () => import('../views/SportView.vue')
+    },
+    {
+        path: '/oorlog',
+        name: 'oorlog',
+        component: () => import('../views/WarView.vue')
+    },
 ]
 
 const router = new VueRouter({

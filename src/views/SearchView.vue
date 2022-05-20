@@ -2,18 +2,18 @@
     <div>
         <div class="row" v-for="item in list" v-bind:key="item.Amount">
             <div class="column">
-                <b-card :title="item.Title"
-                        img-src=""
+                <b-card :title="item.title"
+                        :img-src="item.imgurl"
                         img-alt="Image"
                         img-top
                         tag="article"
                         style="max-width: 20rem;"
                         class="mb-2">
                     <b-card-text>
-                        {{item.Description}}
+                        {{item.description}}
                     </b-card-text>
 
-                    <b-button variant="primary">Lees meer</b-button>
+                    <b-button :href="item.url" variant="primary">Lees meer</b-button>
                 </b-card>
             </div>
         </div>
@@ -31,12 +31,13 @@
         name: 'SearchView',
         data() {
             return {
-                list: undefined
+                list: undefined,
+                criteria: this.$route.params.criteria
             }
         },
         mounted() {
             axios
-                .get('https://localhost:44345/api/News?criteria=War')
+                .get('https://localhost:44345/api/News?criteria=' + this.criteria)
                 .then((result) => {
                     console.warn(result)
                     this.list = result.data
