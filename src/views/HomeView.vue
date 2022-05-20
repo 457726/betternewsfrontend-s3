@@ -1,6 +1,5 @@
 <template>
     <div>
-        <nav-bar />
         <!--<search-view />-->
     </div>
 </template>
@@ -9,13 +8,11 @@
     import  Vue  from 'vue';
     import { BootstrapVue } from 'bootstrap-vue';
     Vue.use(BootstrapVue)
-    import NavbarView from '@/components/NavbarView.vue'
    /* import SearchView from '@/views/SearchView.vue'*/
 
     export default {
         name: 'HomeView',
         components: {
-            'nav-bar': NavbarView,
             /*'search-view': SearchView*/
         }
     }

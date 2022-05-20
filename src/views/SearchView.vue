@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="row" v-for="item in list" v-bind:key="item.Title">
+        <div class="row" v-for="item in list" v-bind:key="item.Amount">
             <div class="column">
                 <b-card :title="item.Title"
                         img-src=""
@@ -31,7 +31,7 @@
         name: 'SearchView',
         data() {
             return {
-                list: []
+                list: undefined
             }
         },
         mounted() {
