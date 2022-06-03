@@ -1,97 +1,127 @@
-import auth0 from 'auth0-js'
-import Vue from 'vue'
+import Vue from 'vue';
+import createAuth0Client from '@auth0/auth0-spa-js';
 
-// exchange the object with your own from the setup step above.
-let webAuth = new auth0.WebAuth({
-    domain: 'dev-nghy1l73.us.auth0.com',
-    clientID: 'lMp8Vzq9azOKzklvdBQeZRwNVu7J8suh',
-    // make sure this line is contains the port: 8080
-    redirectUri: 'http://localhost:8080/callback',
-    // we will use the api/v2/ to access the user information as payload
-    audience: 'https://' + 'dev-nghy1l73.us.auth0.com' + '/api/v2/',
-    responseType: 'token id_token',
-    scope: 'openid profile' // define the scopes you want to use
-})
+/** Define a default action to perform after authentication */
+const DEFAULT_REDIRECT_CALLBACK = () =>
+    window.history.replaceState({}, document.title, window.location.pathname);
 
-let auth = new Vue({
-    computed: {
-        token: {
-            get: function () {
-                return localStorage.getItem('id_token')
+let instance;
+
+/** Returns the current instance of the SDK */
+export const getInstance = () => instance;
+
+/** Creates an instance of the Auth0 SDK. If one has already been created, it returns that instance */
+export const useAuth0 = ({
+    onRedirectCallback = DEFAULT_REDIRECT_CALLBACK,
+    redirectUri = window.location.origin,
+    ...options
+}) => {
+    if (instance) return instance;
+
+    // The 'instance' is simply a Vue object
+    instance = new Vue({
+        data() {
+            return {
+                loading: true,
+                isAuthenticated: false,
+                user: {},
+                auth0Client: null,
+                popupOpen: false,
+                error: null,
+            };
+        },
+        methods: {
+            /** Authenticates the user using a popup window */
+            async loginWithPopup(o) {
+                this.popupOpen = true;
+
+                try {
+                    await this.auth0Client.loginWithPopup(o);
+                } catch (e) {
+                    // eslint-disable-next-line
+                    console.error(e);
+                } finally {
+                    this.popupOpen = false;
+                }
+
+                this.user = await this.auth0Client.getUser();
+                this.isAuthenticated = true;
             },
-            set: function (id_token) {
-                localStorage.setItem('id_token', id_token)
+            /** Handles the callback when logging in using a redirect */
+            async handleRedirectCallback() {
+                this.loading = true;
+                try {
+                    await this.auth0Client.handleRedirectCallback();
+                    this.user = await this.auth0Client.getUser();
+                    this.isAuthenticated = true;
+                } catch (e) {
+                    this.error = e;
+                } finally {
+                    this.loading = false;
+                }
+            },
+            /** Authenticates the user using the redirect method */
+            loginWithRedirect(o) {
+                return this.auth0Client.loginWithRedirect(o);
+            },
+            /** Returns all the claims present in the ID token */
+            getIdTokenClaims(o) {
+                return this.auth0Client.getIdTokenClaims(o);
+            },
+            /** Returns the access token. If the token is invalid or missing, a new one is retrieved */
+            getTokenSilently(o) {
+                return this.auth0Client.getTokenSilently(o);
+            },
+            /** Gets the access token using a popup window */
+
+            getTokenWithPopup(o) {
+                return this.auth0Client.getTokenWithPopup(o);
+            },
+            /** Logs the user out and removes their session on the authorization server */
+            logout(o) {
+                return this.auth0Client.logout(o);
+            },
+        },
+        /** Use this lifecycle method to instantiate the SDK client */
+        async created() {
+            // Create a new instance of the SDK client using members of the given options object
+            this.auth0Client = await createAuth0Client({
+                domain: options.domain,
+                client_id: options.clientId,
+                audience: options.audience,
+                redirect_uri: redirectUri,
+            });
+
+            try {
+                // If the user is returning to the app after authentication..
+                if (
+                    window.location.search.includes('code=') &&
+                    window.location.search.includes('state=')
+                ) {
+                    // handle the redirect and retrieve tokens
+                    const { appState } = await this.auth0Client.handleRedirectCallback();
+
+                    // Notify subscribers that the redirect callback has happened, passing the appState
+                    // (useful for retrieving any pre-authentication state)
+                    onRedirectCallback(appState);
+                }
+            } catch (e) {
+                this.error = e;
+            } finally {
+                // Initialize the internal authentication state
+                this.isAuthenticated = await this.auth0Client.isAuthenticated();
+                this.user = await this.auth0Client.getUser();
+                this.loading = false;
             }
         },
-        accessToken: {
-            get: function () {
-                return localStorage.getItem('access_token')
-            },
-            set: function (accessToken) {
-                localStorage.setItem('access_token', accessToken)
-            }
-        },
-        expiresAt: {
-            get: function () {
-                return localStorage.getItem('expires_at')
-            },
-            set: function (expiresIn) {
-                let expiresAt = JSON.stringify(expiresIn * 1000 + new Date().getTime())
-                localStorage.setItem('expires_at', expiresAt)
-            }
-        },
-        user: {
-            get: function () {
-                return JSON.parse(localStorage.getItem('user'))
-            },
-            set: function (user) {
-                localStorage.setItem('user', JSON.stringify(user))
-            }
-        }
+    });
+
+    return instance;
+};
+
+// Create a simple Vue plugin to expose the wrapper object throughout the application
+export const Auth0Plugin = {
+    install(Vue, options) {
+        Vue.prototype.$auth = useAuth0(options);
     },
-    methods: {
-        login() {
-            webAuth.authorize()
-        },
-        logout() {
-            return new Promise(() => {
-                localStorage.removeItem('access_token')
-                localStorage.removeItem('id_token')
-                localStorage.removeItem('expires_at')
-                localStorage.removeItem('user')
-                webAuth.logout({
-                    returnTo: 'http://localhost:8080', // Allowed logout URL listed in dashboard
-                    clientID: 'lMp8Vzq9azOKzklvdBQeZRwNVu7J8suh', // Your client ID
-                })
-            })
-        },
-        isAuthenticated() {
-            return new Date().getTime() < this.expiresAt
-        },
-        handleAuthentication() {
-            return new Promise((resolve, reject) => {
-                webAuth.parseHash((err, authResult) => {
-
-                    if (authResult && authResult.accessToken && authResult.idToken) {
-                        this.expiresAt = authResult.expiresIn
-                        this.accessToken = authResult.accessToken
-                        this.token = authResult.idToken
-                        this.user = authResult.idTokenPayload
-                        resolve()
-
-                    } else if (err) {
-                        this.logout()
-                        reject(err)
-                    }
-
-                })
-            })
-        }
-    }
-})
-
-export default {
-    install: function (Vue) {
-        Vue.prototype.$auth = auth
-    }
-}
+};

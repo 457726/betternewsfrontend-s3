@@ -1,22 +1,23 @@
 <template>
-    <div>
-        <div class="row" v-for="item in list" v-bind:key="item.Amount">
-            <div class="column">
-                <b-card :title="item.title"
-                        :img-src="item.imgurl"
-                        img-alt="Image"
-                        img-top
-                        tag="article"
-                        style="max-width: 20rem;"
-                        class="mb-2">
-                    <b-card-text>
-                        {{item.description}}
-                    </b-card-text>
-
-                    <b-button :href="item.url" variant="primary">Lees meer</b-button>
-                </b-card>
-            </div>
-        </div>
+    <div class="nieuwsartikelen">
+        <b-card-group columns>
+            <b-card v-bind:key="item.Amount"
+                    v-for="item in list"
+                    :title="item.title"
+                    :img-src="item.imgurl"
+                    img-alt="Image"
+                    img-top
+                    img-height="200"
+                    img-width="200"
+                    tag="article"
+                    style="max-width: 20rem;"
+                    class="mb-2">
+                <b-card-text>
+                    {{item.description}}
+                </b-card-text>
+                <b-button :href="item.url" variant="primary">Lees meer</b-button>
+            </b-card>
+        </b-card-group>
     </div>
 </template>
 
@@ -37,7 +38,7 @@
         },
         mounted() {
             axios
-                .get('https://localhost:44345/api/News?criteria=' + this.criteria)
+                .get('https://localhost:44345/api/News/GetNewsArticles?criteria=' + this.criteria)
                 .then((result) => {
                     console.warn(result)
                     this.list = result.data
@@ -49,7 +50,16 @@
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
     .mb-2 {
-        margin: auto
+        margin: auto;
+        display: inline-block;
+    }
+
+    .nieuwsartikelen {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        min-height: 100vh;
     }
 
     .column {
