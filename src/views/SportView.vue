@@ -39,7 +39,7 @@
         },
         mounted() {
             axios
-                .get('https://localhost:44345/api/News/GetSportNewsArticles')
+                .get('https://newsbackendapiservice-s3.azurewebsites.net/api/News/GetSportNewsArticles')
                 .then((result) => {
                     console.warn(result)
                     this.list = result.data
