@@ -38,7 +38,7 @@
         },
         mounted() {
             axios
-                .get('https://localhost:44345/api/News/GetNewsArticles?criteria=' + this.criteria)
+                .get('https://newsbackendapiservice-s3.azurewebsites.net/api/News/GetNewsArticles?criteria=' + this.criteria)
                 .then((result) => {
                     console.warn(result)
                     this.list = result.data
