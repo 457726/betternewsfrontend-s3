@@ -37,6 +37,16 @@ const routes = [
         name: 'oorlog',
         component: () => import('../views/WarView.vue')
     },
+    {
+        path: '/rate/:article',
+        name: 'rate',
+        component: () => import('../views/RatingView.vue')
+    }//,
+    //{
+    //    path: '/reviews/:title',
+    //    name: 'reviews',
+    //    component: () => import('../components/partials/CommentsView.vue')
+    //}
 ]
 
 const router = new VueRouter({
