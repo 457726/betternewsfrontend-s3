@@ -16,6 +16,8 @@
                     {{item.description}}
                 </b-card-text>
                 <b-button :href="item.url" variant="primary">Lees meer</b-button>
+                <b-button variant="primary" class="review"><router-link style="color:white;" :to="'/rate/' + `${item.title}`"> Beoordeel</router-link></b-button>
+                <!--<router-link :to="'/reviews/' + `${article.title}`">Beoordelingen</router-link>-->
             </b-card>
         </b-card-group>
     </div>
